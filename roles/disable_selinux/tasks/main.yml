@@ -1,0 +1,16 @@
+# Disable SELinux
+- name: Install python3-selinux
+  apt:
+    name: python3-selinux
+    state: present
+    update_cache: yes
+  when: ansible_os_family == "RedHat"
+
+- name: Disable SELinux
+  selinux:
+    state: disabled
+  when: ansible_os_family == "RedHat"
+
+- name: Reboot the machine
+  reboot:
+  when: ansible_os_family == "RedHat"

@@ -1,0 +1,66 @@
+# ubuntu
+- name: copy nginx.repo for ubuntu
+  copy:
+    src: "roles/install_nginx/files/ubuntu/nginx.list"
+    dest: "/etc/apt/sources.list.d/nginx.list"
+    backup: no
+    owner: root
+    group: root
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: Add NGINX public key for ubuntu
+  command: apt-key adv --keyserver keyserver.ubuntu.com --recv-keys ABF5BD827BD9BF62
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: install nginx for ubuntu
+  apt: 
+    name: nginx
+    state: present
+  when: ansible_facts['os_family'] == "Debian"
+
+# centos7
+- name: copy nginx.repo for CentOS
+  copy:
+    src: "roles/install_nginx/files/centos/nginx.repo"
+    dest: "/etc/yum.repos.d/{{ item.dest }}"
+    backup: no
+    owner: root
+    group: root
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: Add NGINX public key for CentOS
+  rpm_key:
+    key: https://nginx.org/keys/nginx_signing.key
+    state: present
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: install nginx for CentOS
+  yum: 
+    name: nginx
+    state: present
+  when: ansible_facts['os_family'] == "RedHat"
+
+# 共通
+- name: copy nginx conf
+  copy:
+    src: "roles/install_nginx/files/{{ inventory_hostname }}/nginx.conf"
+    dest: "/etc/nginx/nginx.conf}"
+    backup: no
+    owner: root
+    group: root
+  notify: restart nginx
+
+- name: copy sites-available
+  copy:
+    src: "roles/install_nginx/files/{{ inventory_hostname }}/sites-available/{{ inventory_hostname }}.conf"
+    dest: "/etc/nginx/sites-available/{{ inventory_hostname }}.conf"
+    backup: no
+    owner: root
+    group: root
+
+- name: enable configuration
+  file: 
+    dest: /etc/nginx/sites-enabled/{{ inventory_hostname }}.conf
+    src: /etc/nginx/sites-available/{{ inventory_hostname }}.conf
+    state: link
+  notify: restart nginx

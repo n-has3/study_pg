@@ -1,0 +1,10 @@
+- name: Install required packages
+  apt:
+    name: "{{item.pkg}}"
+    state: present
+  loop: 
+    - {pkg: pkg-config}
+    - {pkg: libmysqlclient-dev}
+    - {pkg: python3-pip}
+
+

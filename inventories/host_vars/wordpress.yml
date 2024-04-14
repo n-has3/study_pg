@@ -1,0 +1,17 @@
+##=====COMMON=====##
+menta_password: "{{vault_menta_password}}"
+menta_ssh: "{{vault_menta_ssh}}"
+##=====REPOSITORIES=====##
+#php
+PHP_VERSION_ONDREJ: "ppa:ondrej/php"
+
+# Mysql_root_user
+admin_user_name: "root"
+admin_user_password: "{{vault_admin_user_password}}"
+
+# Mysql_wp-user_user
+wp_user_name: "wp-user"
+wp_user_password: "{{vault_wp_user_password}}"
+
+# install_wordpress
+wordpress_url: "https://wordpress.org/latest.tar.gz"

@@ -1,0 +1,87 @@
+become: yes
+
+# ubuntu
+- name: copy MySQL repository for ubuntu
+  copy:
+    src: "roles/install_mysql/files/ubuntu/mysql-apt-config_0.8.28-1_all.deb"
+    dest: /tmp/mysql-apt-config_0.8.28-1_all.deb
+    backup: no
+    owner: root
+    group: root
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: Check if MySQL repository is installed
+  stat:
+    path: /etc/apt/sources.list.d/mysql.list
+  register: mysql_repo
+
+- name: Install MySQL repository for Ubuntu
+  apt:
+    deb: "/tmp/mysql-apt-config_0.8.28-1_all.deb"
+    update_cache: yes
+  when: not mysql_repo.stat.exists and ansible_facts['os_family'] == "Debian"
+
+
+- name: Install MySQL packages for ubuntu
+  apt:
+    force_apt_get: yes
+    state: present
+    name:
+      - mysql-server
+      - mysql-client
+  when: ansible_facts['os_family'] == "Debian"
+
+# centos
+- name: copy MySQL repository for centos
+  copy:
+    src: "roles/install_mysql/files/centos/mysql80-community-release-el7-11.noarch.rpm"
+    dest: /tmp/mysql80-community-release-el7-11.noarch.rpm
+    backup: no
+    owner: root
+    group: root
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: Check if MySQL repository is installed
+  stat:
+    path: /etc/apt/sources.list.d/mysql.list
+  register: mysql_repo
+
+- name: Install MySQL repository for centos
+  yum:
+    deb: "/tmp/mysql80-community-release-el7-11.noarch.rpm"
+    update_cache: yes
+  when: not mysql_repo.stat.exists and ansible_facts['os_family'] == "RedHat"
+
+- name: Install MySQL packages for centos
+  yum:
+    force_yum_get: yes
+    state: latest
+    name:
+      - mysql-server
+      - mysql-client
+  when: ansible_facts['os_family'] == "RedHat"
+
+# 共通
+
+- name: Retrieve the GPG key for MySQL Repository
+  shell: |
+    gpg --keyserver keyserver.ubuntu.com --recv-keys B7B3B788A8D3785C
+
+- name: Export the GPG key to trusted.gpg.d directory
+  shell: |
+    gpg --export B7B3B788A8D3785C | tee /etc/apt/trusted.gpg.d/mysql.gpg > /dev/null
+
+
+- name: Install mysqlclient
+  pip:
+    name: mysqlclient
+    executable: pip3.10
+
+- name: Setting password for MySQL root user
+  mysql_user:
+    login_user: "{{ admin_user_name }}"
+    login_password: "{{ admin_user_password }}"
+    name: "{{ admin_user_name }}"
+    password: "{{ admin_user_password }}"
+    check_implicit_admin: yes
+    state: present
