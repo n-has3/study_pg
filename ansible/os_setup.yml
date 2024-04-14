@@ -1,0 +1,6 @@
+- hosts: all
+  roles:
+  - linux_setup
+  - disable_selinux
+  - install_python3.10
+  - create_user

@@ -1,0 +1,12 @@
+[wordpress]
+dev.menta.me ansible_host=172.18.176.216
+
+[zabbix]
+zabbix.menta.me ansible_host=
+
+#group
+[web:children]
+wordpress
+
+[monitoring:children]
+zabbix
