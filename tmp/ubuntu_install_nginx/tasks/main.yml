@@ -1,0 +1,64 @@
+# ubuntu
+- name: copy nginx.repo
+  copy:
+    src: "roles/install_nginx/files/ubuntu/nginx.list}"
+    dest: "/etc/apt/sources.list.d/{{ item.dest }}"
+    backup: no
+    owner: root
+    group: root
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: install nginx (ubuntu)
+  apt: 
+    name: nginx
+    state: present
+  when: ansible_facts['os_family'] == "Debian"
+
+# centos7
+- name: copy nginx.repo
+  copy:
+    src: "roles/install_nginx/files/centos/nginx.repo}"
+    dest: "/etc/yum.repos.d/{{ item.dest }}"
+    backup: no
+    owner: root
+    group: root
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: install nginx (ubuntu)
+  yum: 
+    name: nginx
+    state: present
+  when: ansible_facts['os_family'] == "RedHat"
+
+# 共通
+- name: Add NGINX public key
+  command: apt-key adv --keyserver keyserver.ubuntu.com --recv-keys ABF5BD827BD9BF62
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: copy nginx conf
+  copy:
+    src: "roles/install_nginx/files/{{ item.src }}"
+    dest: "/etc/nginx/{{ item.dest }}"
+    backup: no
+    owner: root
+    group: root
+  loop:
+    - { src: "{{ inventory_hostname }}/nginx.conf", dest: . }
+  notify: restart nginx
+
+- name: copy sites-available
+  copy:
+    src: "roles/install_nginx/files/{{ item.src }}"
+    dest: "/etc/nginx/sites-available/{{ item.dest }}"
+    backup: no
+    owner: root
+    group: root
+  loop:
+    - { src: "{{ inventory_hostname }}/sites-available/dev.menta.me.conf", dest: . }
+
+- name: enable configuration
+  file: 
+    dest: /etc/nginx/sites-enabled/dev.menta.me.conf
+    src: /etc/nginx/sites-available/dev.menta.me.conf
+    state: link
+  notify: restart nginx

@@ -1,0 +1,35 @@
+# ubuntu
+- name: Update apt package manager
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  when: ansible_os_family == "Debian"
+
+- name: Install package on Ubuntu/Debian
+  apt:
+    name:
+      - git
+      - curl
+      - tar
+    state: present
+    update_cache: yes
+  when: ansible_facts['os_family'] == "Debian"
+
+
+# centos  
+- name: Update yum package manager
+  yum:
+    name: '*'
+    state: latest
+  when: ansible_os_family == "RedHat"
+
+- name: Install package on RedHat
+  yum:
+    name:
+      - git
+      - curl
+      - tar
+      - python3-selinux
+    state: present
+    update_cache: yes
+  when: ansible_facts['os_family'] == "RedHat"
