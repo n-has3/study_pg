@@ -1,8 +1,0 @@
-- hosts: wordpress
-  roles:
-    - install_nginx
-    - install_mysql
-    - install_php7.4
-    - install_wordpress
-    - install_cron
-    

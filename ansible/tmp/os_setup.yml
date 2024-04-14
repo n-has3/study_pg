@@ -1,7 +1,0 @@
-- hosts: all
-  roles:
-    - create_user
-    - install_git
-    - disable_selinux
-    - install_python3.10
-    
